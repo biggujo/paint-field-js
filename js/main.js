@@ -1,9 +1,11 @@
+document.addEventListener("selectionchange", (e) => e.preventDefault());
+
 const paintField = document.querySelector(".paint__field");
 
 createField(60);
 
 paintField.addEventListener("mouseover", onPaintTileHover);
-// paintField.addEventListener("click", onToggleColorSave);
+paintField.addEventListener("click", onTileClick);
 paintField.addEventListener("mouseout", onPaintTileOut);
 
 let lastTile = null;
@@ -11,14 +13,11 @@ let lastTile = null;
 function onPaintTileHover(event) {
   const currentTarget = event.target;
 
-  const isTile = currentTarget.classList.contains("paint__tile");
-  const isSaved = currentTarget.classList.contains("paint__tile--saved");
-
-  if (!isTile) {
+  if (!isTile(event)) {
     return;
   }
 
-  if (isSaved) {
+  if (isSaved(event)) {
     return;
   }
 
@@ -34,31 +33,73 @@ function onPaintTileOut(event) {
 
   console.log("out");
 
-  if (lastTile.classList.contains("paint__tile--saved") === true) {
+  if (isSaved(event)) {
     return;
   }
 
   removeColor(event);
 }
 
+function onTileClick(event) {
+  toggleSaveColor(event);
+}
+
+function toggleSaveColor(event) {
+  if (!isTile(event)) {
+    return;
+  }
+
+  if (isSaved(event)) {
+    unsaveColor(event);
+  } else {
+    saveColor(event);
+  }
+}
+
 function addColor(event) {
   const currentTarget = event.target;
 
-  if (currentTarget.classList.contains("paint__tile") === false) {
+  if (!isTile(event)) {
     return;
   }
 
   currentTarget.style.backgroundColor = getRandomColor();
 }
 
+function saveColor(event) {
+
+  if (!isTile(event)) {
+    return;
+  }
+
+  event.target.classList.add("paint__tile--saved");
+}
+
 function removeColor(event) {
   const currentTarget = event.target;
 
-  if (currentTarget.classList.contains("paint__tile") === false) {
+  if (!isTile(event)) {
     return;
   }
 
   currentTarget.style.removeProperty("background-color");
+}
+
+function unsaveColor(event) {
+
+  if (!isTile(event)) {
+    return;
+  }
+
+  event.target.classList.remove("paint__tile--saved");
+}
+
+function isSaved(event) {
+  return event.target.classList.contains("paint__tile--saved");
+}
+
+function isTile(event) {
+  return event.target.classList.contains("paint__tile");
 }
 
 function createField(tilesAmount) {
